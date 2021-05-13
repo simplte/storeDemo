@@ -5,6 +5,7 @@
       <el-table-column prop="name" label="姓名" width="180"> </el-table-column>
       <el-table-column prop="address" label="地址"> </el-table-column>
     </el-table>
+    <div class="look"></div>
   </div>
 </template>
 
@@ -35,12 +36,18 @@ export default defineComponent({
         }
   },
   setup() {
-      axios.get('/users/XPoet')
+      axios.post('/v1/cities',{type: 'guess'})
       .then((res) => { console.log('res: ', res) })
       .catch((err) => { console.log('err: ', err) }) }
   
 });
 </script>
 
-<style>
+<style lang="less">
+@cloor:red;
+.look{
+    background: @cloor;
+    width: 100px;
+    height:100px
+}
 </style>

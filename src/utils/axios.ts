@@ -1,7 +1,7 @@
 import Axios from 'axios'
 import { ElMessage } from 'element-plus'
 
-const baseURL = 'https://api.github.com'
+const baseURL = 'http://localhost:8001'
 
 const axios = Axios.create({
     baseURL,
@@ -24,7 +24,14 @@ axios.interceptors.response.use(
         return response
     },
     (error) => {
-        if (error.response && error.response.data) { const code = error.response.status const msg = error.response.data.message ElMessage.error(Code: ${ code }, Message: ${ msg }) console.error([Axios Error], error.response) } else { ElMessage.error(${ error }) }
+        if (error.response && error.response.data) { 
+            const code = error.response.status 
+            const msg = error.response.data.message 
+            ElMessage.error( msg ) 
+            console.error( error.response) 
+        } else {
+            ElMessage.error(error) 
+        }
         return Promise.reject(error)
     })
 
