@@ -26,7 +26,7 @@ const header:header = {
   macAddress: "",
   time: 0,
   sign: "",
-  appKey: "uniqloApp",
+  appKey: "cccApp",
   sid: ""
 };
 

@@ -22,14 +22,14 @@
           <p class="moiveDate">{{ item.create_time | handleTime }}</p>
           <p class="moiveIntros">{{ item.title }}</p>
           <p class="bannelBox">
-            <span class="bannel" :class="{ isJqr: isJqr }">
+            <span class="bannel isJqr">
               <span class="contrlbox">
                 <img class="look" src="@@/images/look2.png" />
                 <span class="count">{{
-                  item.video_wnum | handleReadCount
+                  item.video_wnum
                 }}</span>
               </span>
-              <span class="contrlbox" v-if="!isJqr">
+              <span class="contrlbox" >
                 <img class="zan" src="@@/images/like.png" />
                 <span class="count">{{ Number(item.video_lnum) }}</span>
               </span>
@@ -42,22 +42,29 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, onMounted , ref} from "vue";
 import ApiHomePage from "../request/modules/homePage";
 export default defineComponent({
   name: "home",
-  async setup() {
-    let allReadCount: number = 0;
-    let readBuyList: Array<any> = [];
+   setup() {
+    let allReadCount = ref(null);
+    let readBuyList= ref(null);
     const params = {
       page: 1,
     };
-    let res: any = await ApiHomePage.readBuyList(params);
-    if (res && res.result == 0 && res.list.length > 0) {
-      // 总阅读量
-      allReadCount = Number(res.video_total || 0);
-      readBuyList = readBuyList.concat(res.list);
-    }
+    console.log(0)
+    onMounted(async () =>{
+      console.log(1)
+       let res: any = await ApiHomePage.readBuyList(params);
+      if (res && res.result == 0 && res.list.length > 0) {
+        // 总阅读量
+        allReadCount.value = Number(res.video_total || 0);
+        readBuyList.value = res.list;
+      }
+   
+    });
+  
+   
     console.log(readBuyList);
     return {
       allReadCount,

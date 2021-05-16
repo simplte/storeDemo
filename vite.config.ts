@@ -19,7 +19,7 @@ export default defineConfig({
     proxy: {
       '/api': {
         ws: true,
-        target: 'https://test-event.ccq.cn/uniqlo_new_cms',
+        target: 'https://test-event.ccc.cn/ccc_new_cms',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/,'/')
       }
