@@ -7,21 +7,21 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src')
+      '@': resolve(__dirname, 'src'),
+      '@@': resolve(__dirname, 'src/assets/'),
     }
   },
   base: './',
   server: {
     port: 4000,
-    open: true,
     cors: true,
     // 设置代理
     proxy: {
       '/api': {
-        target: '',
+        ws: true,
+        target: 'https://test-event.ccq.cn/uniqlo_new_cms',
         changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace('/api/','/')
+        rewrite: (path) => path.replace(/^\/api/,'/')
       }
     }
   }
