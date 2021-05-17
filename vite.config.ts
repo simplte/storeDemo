@@ -22,7 +22,13 @@ export default defineConfig({
         target: 'https://test-event.ccc.cn/ccc_new_cms',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/,'/')
-      }
+      },
+      '/elApi': {
+        ws: true,
+        target: 'http://192.168.1.4:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/elApi/,'/')
+      },
     }
   }
 })
