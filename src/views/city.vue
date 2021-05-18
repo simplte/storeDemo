@@ -1,60 +1,33 @@
 <template>
-  <div>
-    <head-top signin-up="home">
-      <span slot="logo" class="head_logo" @click="reload">ele.me</span>
-    </head-top>
-    <nav class="city_nav">
-      <div class="city_tip">
-        <span>当前定位城市：</span>
-        <span>定位不准时，请在城市列表中选择</span>
-      </div>
-      <router-link :to="'/city/' + guessCityid" class="guess_city">
-        <span>{{ guessCity }}</span>
-        <svg class="arrow_right">
-          <use
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            xlink:href="#arrow-right"
-          ></use>
-        </svg>
-      </router-link>
-    </nav>
-    <section id="hot_city_container">
-      <h4 class="city_title">热门城市</h4>
-      <ul class="citylistul clear">
-        <router-link
-          tag="li"
-          v-for="item in hotcity"
-          :to="'/city/' + item.id"
-          :key="item.id"
-        >
-          {{ item.name }}
-        </router-link>
-      </ul>
-    </section>
-    <section class="group_city_container">
-      <ul class="letter_classify">
-        <li
-          v-for="(value, key, index) in sortgroupcity"
-          :key="key"
-          class="letter_classify_li"
-        >
-          <h4 class="city_title">
-            {{ key }}
-            <span v-if="index == 0">（按字母排序）</span>
-          </h4>
-          <ul class="groupcity_name_container citylistul clear">
-              <span v-for="item in value" :key="item.id" class="ellipsis">{{ item.name }}</span>
-          </ul>
-        </li>
-      </ul>
-    </section>
-  </div>
+  <div class="city_container">
+        <head-top :head-title="cityname" go-back='true'>
+            <router-link to="/home" slot="changecity" class="change_city">切换城市</router-link>
+        </head-top>
+        <form class="city_form" v-on:submit.prevent>
+            <div>
+                <input type="search" name="city" placeholder="输入学校、商务楼、地址" class="city_input input_style" required v-model='inputVaule'>
+            </div>
+            <div>
+                <input type="submit" name="submit" class="city_submit input_style" @click='postpois' value="提交">
+            </div>
+        </form>
+        <header v-if="historytitle" class="pois_search_history">搜索历史</header>
+        <ul class="getpois_ul">
+            <li v-for="(item, index) in placelist" @click='nextpage(index, item.geohash)' :key="index">
+                <h4 class="pois_name ellipsis">{{item.name}}</h4>
+                <p class="pois_address ellipsis">{{item.address}}</p>
+            </li>
+        </ul>
+        <footer v-if="historytitle&&placelist.length" class="clear_all_history" @click="clearAll">清空所有</footer>
+        <div class="search_none_place" v-if="placeNone">很抱歉！无搜索结果</div>
+    </div>
 </template>
 
 <script lang="ts">
 import headTop from "../components/header/head.vue";
 import { defineComponent, onMounted, ref, computed } from "vue";
 import ApiElHome from "../request/modules/elHome";
+import {getStore, setStore, removeStore} from 'src/config/mUtils'
 export default defineComponent({
   name: "elIndex",
   components: {

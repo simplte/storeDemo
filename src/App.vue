@@ -14,8 +14,9 @@ export default defineComponent({
 })
 </script>
 
-<style lang='less'>
-@import './assets/less/base.less';
+<style lang='scss'>
+// @import './assets/less/base.less';
+@import './assets/style/common.scss';
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
