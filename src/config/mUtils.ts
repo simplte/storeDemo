@@ -6,6 +6,7 @@ export const setStore = (name:string, content:string) => {
 	if (typeof content !== 'string') {
 		content = JSON.stringify(content);
 	}
+    debugger
 	window.localStorage.setItem(name, content);
 }
 
@@ -152,7 +153,7 @@ export const showBack = (callback: Function) => {
  * @param {string}      mode      运动模式，可选
  * @param {function}    callback  可选，回调函数，链式动画
  */
-export const animate = (element:any, target:{}, duration:Number = 400, mode:String = 'ease-out', callback:Function) => {
+export const animate = (element:any, target:{}, duration:number = 400, mode:String = 'ease-out', callback:Function) => {
     clearInterval(element.timer);
 
     //判断不同参数的情况
@@ -181,11 +182,11 @@ export const animate = (element:any, target:{}, duration:Number = 400, mode:Stri
     //根字体大小，需要从此将 rem 改成 px 进行运算
     const rootSize = parseFloat(document.documentElement.style.fontSize);
 
-    const unit = {};
-    const initState = {};
+    let unit :object = {};
+    let initState:object = {};
 
     //获取目标属性单位和初始样式值
-    Object.keys(target).forEach((attr:string) => {
+    Object.keys(target).forEach((attr) => {
         if (/[^\d^\.]+/gi.test(target[attr])) {
             unit[attr] = target[attr].match(/[^\d^\.]+/gi)[0] || 'px';
         }else{
@@ -212,7 +213,7 @@ export const animate = (element:any, target:{}, duration:Number = 400, mode:Stri
             let status = false; //是否仍需运动
             let iCurrent = attrStyle(attr) || 0; //当前元素属性址
             let speedBase = 0; //目标点需要减去的基础值，三种运动状态的值都不同
-            let intervalTime; //将目标值分为多少步执行，数值越大，步长越小，运动时间越长
+            let intervalTime: number = 0; //将目标值分为多少步执行，数值越大，步长越小，运动时间越长
             switch(mode){
                 case 'ease-out': 
                     speedBase = iCurrent;
