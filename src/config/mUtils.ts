@@ -1,7 +1,7 @@
 /**
  * 存储localStorage
  */
-export const setStore = (name:string, content:string) => {
+export const setStore = (name:string, content:any) => {
 	if (!name) return;
 	if (typeof content !== 'string') {
 		content = JSON.stringify(content);

@@ -44,11 +44,11 @@ export default defineComponent({
     },
   },
   setup: () => {
-    const count = ref(0);
-    let goBack = true;
-    let signinUp = true;
-    let headTitle = "123";
-    return { count, goBack, signinUp, headTitle };
+    // const count = ref(0);
+    // let goBack = true;
+    // let signinUp = true;
+    // let headTitle = "123";
+    // return { count, goBack, signinUp, headTitle };
   },
 });
 </script>

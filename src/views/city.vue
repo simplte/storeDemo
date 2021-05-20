@@ -50,7 +50,7 @@
 
 <script lang="ts">
 import headTop from "../components/header/head.vue";
-import { defineComponent, onMounted, ref, toRef, computed } from "vue";
+import { defineComponent, onMounted, ref, toRef, computed,toRaw  } from "vue";
 import { currentcity, searchplace } from "../request/modules/city";
 import { getStore, setStore, removeStore } from "../config/mUtils";
 import { useRoute, useRouter } from "vue-router";
@@ -64,9 +64,9 @@ export default defineComponent({
     console.log;
     let cityid = ref<number>(0);
     let cityname = ref<string>("");
-    let placelist = ref([]);
+    let placelist = ref<string[]>([]);
     let inputVaule = ref<string>("");
-    let placeHistory = ref(null);
+    let placeHistory = ref([]);
     let historytitle = ref<boolean>(false);
     let placeNone = ref<boolean>(false);
     const route = useRoute();
@@ -110,7 +110,7 @@ export default defineComponent({
      */
     function nextpage(index: number, geohash: string) {
       let history = getStore("placeHistory");
-      let choosePlace: string = placelist.value[index];
+      let choosePlace: string = toRaw(placelist.value[index]);
       if (history) {
         let checkrepeat: boolean = false;
         placeHistory.value = JSON.parse(history);
@@ -123,10 +123,9 @@ export default defineComponent({
           placeHistory.value.push(choosePlace);
         }
       } else {
-        console.log(choosePlace)
         placeHistory.value.push(choosePlace);
       }
-      setStore("placeHistory", placeHistory.value);
+      setStore("placeHistory", placelist.value);
       router.push({ path: "/msite", query: { geohash } });
     }
     function clearAll() {

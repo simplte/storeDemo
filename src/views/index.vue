@@ -8,7 +8,7 @@
         <span>当前定位城市：</span>
         <span>定位不准时，请在城市列表中选择</span>
       </div>
-      <router-link :to="'/city/' + guessCityid" class="guess_city">
+      <div  @click="jumpPage(guessCityid)" class="guess_city">
         <span>{{ guessCity }}</span>
         <svg class="arrow_right">
           <use
@@ -16,19 +16,18 @@
             xlink:href="#arrow-right"
           ></use>
         </svg>
-      </router-link>
+      </div>
     </nav>
     <section id="hot_city_container">
       <h4 class="city_title">热门城市</h4>
       <ul class="citylistul clear">
-        <router-link
-          tag="li"
+        <div
+           @click="jumpPage(item.id)"
           v-for="item in hotcity"
-          :to="'/city/' + item.id"
           :key="item.id"
         >
           {{ item.name }}
-        </router-link>
+        </div>
       </ul>
     </section>
     <section class="group_city_container">
@@ -55,6 +54,7 @@
 import headTop from "../components/header/head.vue";
 import { defineComponent, onMounted, ref, computed } from "vue";
 import ApiElHome from "../request/modules/elHome";
+import {  useRouter } from "vue-router";
 export default defineComponent({
   name: "elIndex",
   components: {
@@ -66,7 +66,7 @@ export default defineComponent({
       guessCityid = ref(""), //当前城市id
       hotcity = ref(null), //热门城市列表
       groupcity = ref(null); //所有城市列表
-
+    const router = useRouter();
     console.log(0);
     onMounted(() => {
       reqestCityGuess();
@@ -105,12 +105,16 @@ export default defineComponent({
       },
       set: (val) => {},
     });
+    function jumpPage(id) {
+       router.push({ path: "/city", query: { cityid:id } });
+    }
     return {
       guessCity,
       guessCityid,
       hotcity,
       groupcity,
       sortgroupcity,
+      jumpPage
     };
   },
 });
