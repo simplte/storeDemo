@@ -26,7 +26,7 @@
           />
         </div>
         <section class="description_header">
-          <router-link to="/shop/shopDetail" class="description_top">
+          <div to="/shop/shopDetail" class="description_top">
             <section class="description_left">
               <img :src="imgBaseUrl + shopDetailData.image_path" />
             </section>
@@ -57,7 +57,7 @@
                 fill="none"
               />
             </svg>
-          </router-link>
+          </div>
           <footer
             class="description_footer"
             v-if="shopDetailData.activities.length"
@@ -210,7 +210,7 @@
                     :key="foodindex"
                     class="menu_detail_list"
                   >
-                    <router-link
+                    <div
                       :to="{
                         path: 'shop/foodDetail',
                         query: {
@@ -286,7 +286,7 @@
                           >
                         </p>
                       </section>
-                    </router-link>
+                    </div>
                     <footer class="menu_detail_footer">
                       <section class="food_price">
                         <span>¥</span>
@@ -339,12 +339,13 @@
               <span class="gotopay_button_style" v-if="minimumOrderAmount > 0"
                 >还差¥{{ minimumOrderAmount }}起送</span
               >
-              <router-link
+              <div
                 :to="{ path: '/confirmOrder', query: { geohash, shopId } }"
                 class="gotopay_button_style"
                 v-else
-                >去结算</router-link
               >
+                去结算
+              </div>
             </section>
           </section>
           <transition name="toggle-cart">
@@ -662,6 +663,7 @@ import {
   toRef,
   computed,
   toRaw,
+  nextTick,
   onBeforeMount,
 } from "vue";
 import elApi from "../request/modules/elHome";
@@ -675,6 +677,7 @@ import {
 } from "../request/modules/shop";
 import { getStore, setStore, removeStore } from "../config/mUtils";
 import { useRoute, useRouter } from "vue-router";
+import BScroll from 'better-scroll'
 export default defineComponent({
   name: "msite",
   components: {
@@ -725,6 +728,45 @@ export default defineComponent({
     let latitude = store.state.latitude;
     let longitude = store.state.longitude;
     let cartList = store.state.latitude;
+    let promotionInfo = computed(() => {
+      return (
+        shopDetailData.value.promotion_info ||
+        "欢迎光临，用餐高峰期请提前下单，谢谢。"
+      );
+    });
+    //配送费
+    let deliveryFee = computed({
+      get() {
+        if (shopDetailData.value) {
+          return shopDetailData.value.float_delivery_fee;
+        } else {
+          return null;
+        }
+      },
+      set() {},
+    });
+    //还差多少元起送，为负数时显示去结算按钮
+    let minimumOrderAmount = computed({
+      set() {
+        if (shopDetailData.value) {
+          return (
+            shopDetailData.value.float_minimum_order_amount - totalPrice.value
+          );
+        }
+      },
+      get() {},
+    });
+    //当前商店购物信息
+    let shopCart = computed(() => {
+      return { ...cartList.value[shopId.value] };
+    });
+    let totalNum = computed(() => {
+      let num = 0;
+      cartFoodList.value.forEach((item) => {
+        num += item.num;
+      });
+      return num;
+    });
     onBeforeMount(() => {
       geohash.value = route.query.geohash;
       shopId.value = route.query.id;
@@ -733,10 +775,9 @@ export default defineComponent({
     });
     onMounted(() => {});
     async function initData() {
-        debugger
       if (!latitude.value) {
         //获取位置信息
-        let res: any = await msiteAddress({ geohash:geohash.value });
+        let res: any = await msiteAddress({ geohash: geohash.value });
         // 记录当前经度纬度进入vuex
         store.commit("RECORD_ADDRESS", res);
       }
@@ -745,6 +786,7 @@ export default defineComponent({
         shopid: shopId.value,
         position: { latitude: latitude.value, longitude: longitude.value },
       });
+      // shopDetailData.value
       //获取商铺食品列表
       menuList.value = await foodMenu({ restaurant_id: shopId.value });
       //评论列表
@@ -758,7 +800,221 @@ export default defineComponent({
       ratingTagsList.value = await ratingTags(shopId.value);
       store.commit("RECORD_SHOPDETAIL", shopDetailData);
     }
+    const menuFoodList = ref();
+    const wrapperMenu = ref();
+    const cartContainer = ref();
+    //获取食品列表的高度，存入shopListTop
+    function getFoodListHeight() {
+      if (menuFoodList.value) {
+        const listArr = Array.from(menuFoodList.value.children[0].children);
+        listArr.forEach((item, index) => {
+          shopListTop.value[index] = item["offsetTop"];
+        });
+        listenScroll(menuFoodList.value);
+      }
+    }
+    //当滑动食品列表时，监听其scrollTop值来设置对应的食品列表标题的样式
+          function  listenScroll(element){
+                foodScroll.value = new BScroll(element, {
+                    probeType: 3,
+                    deceleration: 0.001,
+                    bounce: false,
+                    swipeTime: 2000,
+                    click: true,
+                });
 
+                wrapperMenu.value = new BScroll('#wrapper_menu', {
+                    click: true,
+                });
+
+                const wrapMenuHeight = wrapperMenu.value.clientHeight;
+                foodScroll.on('scroll', (pos) => {
+                    if (!wrapperMenu.value) {
+                        return
+                    }
+                    shopListTop.value.forEach((item, index) => {
+                        if (menuIndexChange.value && Math.abs(Math.round(pos.y)) >= item) {
+                            menuIndex.value = index;
+                            const menuList=wrapperMenu.value.querySelectorAll('.activity_menu');
+                            const el = menuList[0];
+                            wrapperMenu.value.scrollToElement(el, 800, 0, -(wrapMenuHeight/2 - 50));
+                        }
+                    })
+                })
+            }
+            //控制活动详情页的显示隐藏
+            function showActivitiesFun(){
+              showActivities.value = !showActivities.value;
+            }
+            //点击左侧食品列表标题，相应列表移动到最顶层
+            function chooseMenu(index){
+                menuIndex.value = index;
+                //menuIndexChange解决运动时listenScroll依然监听的bug
+                menuIndexChange.value = false;
+                foodScroll.value.scrollTo(0, -shopListTop.value[index], 400);
+                foodScroll.value.on('scrollEnd', () => {
+                    menuIndexChange.value = true;
+                })
+            }
+            function showTitleDetail(index){
+                if (TitleDetailIndex.value == index) {
+                    TitleDetailIndex.value = null;
+                }else{
+                    TitleDetailIndex.value = index;
+                }
+            }
+            //加入购物车，所需7个参数，商铺id，食品分类id，食品id，食品规格id，食品名字，食品价格，食品规格
+            function addToCart(category_id, item_id, food_id, name, price, specs){
+                store.commit("ADD_CART", {shopid: shopId.value, category_id, item_id, food_id, name, price, specs});
+            }
+            //移出购物车，所需7个参数，商铺id，食品分类id，食品id，食品规格id，食品名字，食品价格，食品规格
+            function removeOutCart(category_id, item_id, food_id, name, price, specs){
+               store.commit("REDUCE_CART", {shopid: shopId.value, category_id, item_id, food_id, name, price, specs});
+            }
+            /**
+             * 初始化和shopCart变化时，重新获取购物车改变过的数据，赋值 categoryNum，totalPrice，cartFoodList，整个数据流是自上而下的形式，所有的购物车数据都交给vuex统一管理，包括购物车组件中自身的商品数量，使整个数据流更加清晰
+             */
+            function initCategoryNum(){
+                let newArr = [];
+                let cartFoodNum = 0;
+                totalPrice.value = 0;
+                cartFoodList.value = [];
+                menuList.value.forEach((item, index) => {
+                    if (shopCart.value&&shopCart.value[item.foods[0].category_id]) {
+                        let num = 0;
+                        Object.keys(shopCart.value[item.foods[0].category_id]).forEach(itemid => {
+                            Object.keys(shopCart.value[item.foods[0].category_id][itemid]).forEach(foodid => {
+                                let foodItem = shopCart.value[item.foods[0].category_id][itemid][foodid];
+                                num += foodItem.num;
+                                if (item.type == 1) {
+                                    totalPrice.value += foodItem.num*foodItem.price;
+                                    if (foodItem.num > 0) {
+                                        cartFoodList.value[cartFoodNum] = {};
+                                        cartFoodList.value[cartFoodNum].category_id = item.foods[0].category_id;
+                                        cartFoodList.value[cartFoodNum].item_id = itemid;
+                                        cartFoodList.value[cartFoodNum].food_id = foodid;
+                                        cartFoodList.value[cartFoodNum].num = foodItem.num;
+                                        cartFoodList.value[cartFoodNum].price = foodItem.price;
+                                        cartFoodList.value[cartFoodNum].name = foodItem.name;
+                                        cartFoodList.value[cartFoodNum].specs = foodItem.specs;
+                                        cartFoodNum ++;
+                                    }
+                                }
+                            })
+                        })
+                        newArr[index] = num;
+                    }else{
+                        newArr[index] = 0;
+                    }
+                })
+                totalPrice.value = totalPrice.value.toFixed(2);
+                categoryNum.value = [...newArr];
+            }
+            //控制购物列表是否显示
+            function toggleCartList(){
+                cartFoodList.value.length ? showCartList.value = !showCartList.value : true;
+            }
+            //清除购物车
+            function clearCart(){
+                toggleCartList();
+                store.commit("CLEAR_CART",shopId.value)
+            }
+            //监听圆点是否进入购物车
+            function listenInCart(){
+                if (!receiveInCart.value) {
+                    receiveInCart.value = true;
+                    cartContainer.value.addEventListener('animationend', () => {
+                        receiveInCart.value = false;
+                    })
+                    cartContainer.value.addEventListener('webkitAnimationEnd', () => {
+                        receiveInCart.value = false;
+                    })
+                }
+            }
+            //获取不同类型的评论列表
+            async function changeTgeIndex(index, name){
+                ratingTageIndex.value = index;
+                ratingOffset.value = 0;
+                ratingTagName.value = name;
+                let res:any = await getRatingList({shopid: shopId.value, offset:ratingOffset.value, tag_name:name});
+                ratingList.value = [...res];
+                nextTick(() => {
+                   ratingScroll.value.refresh();
+                })
+            }
+            //加载更多评论
+            async function loaderMoreRating(){
+                if (this.preventRepeatRequest) {
+                    return
+                }
+                this.loadRatings = true;
+                this.preventRepeatRequest = true;
+                this.ratingOffset += 10;
+                let ratingDate = await getRatingList(this.shopId, this.ratingOffset, this.ratingTagName);
+                this.ratingList = [...this.ratingList,...ratingDate];
+                this.loadRatings = false;
+                if (ratingDate.length >= 10) {
+                    this.preventRepeatRequest = false;
+                }
+            },
+            //隐藏动画
+            hideLoading(){
+                this.showLoading = false;
+            },
+            //显示规格列表
+            showChooseList(foods){
+                if (foods) {
+                    this.choosedFoods = foods;
+                }
+                this.showSpecs = !this.showSpecs;
+                this.specsIndex = 0;
+            },
+            //记录当前所选规格的索引值
+            chooseSpecs(index){
+                this.specsIndex = index;
+            },
+            //多规格商品加入购物车
+            addSpecs(category_id, item_id, food_id, name, price, specs, packing_fee, sku_id, stock){
+                this.ADD_CART({shopid: this.shopId, category_id, item_id, food_id, name, price, specs, packing_fee, sku_id, stock});
+                this.showChooseList();
+            },
+            //显示提示，无法减去商品
+            showReduceTip(){
+                this.showDeleteTip = true;
+                clearTimeout(this.timer);
+                this.timer = setTimeout(() => {
+                    clearTimeout(this.timer);
+                    this.showDeleteTip = false;
+                }, 3000);
+            },
+            //显示下落圆球
+            showMoveDotFun(showMoveDot, elLeft, elBottom){
+                this.showMoveDot = [...this.showMoveDot, ...showMoveDot];
+                this.elLeft = elLeft;
+                this.elBottom = elBottom;
+            },
+            beforeEnter(el){
+                el.style.transform = `translate3d(0,${37 + this.elBottom - this.windowHeight}px,0)`;
+                el.children[0].style.transform = `translate3d(${this.elLeft - 30}px,0,0)`;
+                el.children[0].style.opacity = 0;
+            },
+            afterEnter(el){
+                el.style.transform = `translate3d(0,0,0)`;
+                el.children[0].style.transform = `translate3d(0,0,0)`;
+                el.style.transition = 'transform .55s cubic-bezier(0.3, -0.25, 0.7, -0.15)';
+                el.children[0].style.transition = 'transform .55s linear';
+                this.showMoveDot = this.showMoveDot.map(item => false);
+                el.children[0].style.opacity = 1;
+                el.children[0].addEventListener('transitionend', () => {
+                    this.listenInCart();
+                })
+                el.children[0].addEventListener('webkitAnimationEnd', () => {
+                    this.listenInCart();
+                })
+            },
+            goback(){
+                this.$router.go(-1);
+            }
     return {
       geohash,
       shopId,
@@ -795,6 +1051,13 @@ export default defineComponent({
       elBottom,
       ratingScroll,
       imgBaseUrl,
+      promotionInfo,
+      deliveryFee,
+      minimumOrderAmount,
+      shopCart,
+      totalNum,
+      getFoodListHeight,
+      menuFoodList
     };
   },
 });
@@ -1541,7 +1804,7 @@ export default defineComponent({
               display: flex;
               align-items: center;
               .time_spent_desc {
-                @include sc(0.55rem, #666) ;
+                @include sc(0.55rem, #666);
                 margin-left: 0.15rem;
               }
             }

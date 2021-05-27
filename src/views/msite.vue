@@ -200,10 +200,8 @@ export default defineComponent({
   }
 }
 .msite_nav {
-  padding-top: 2.1rem;
   background-color: #fff;
   border-bottom: 0.025rem solid $bc;
-  height: 10.6rem;
   .swiper-container {
     @include wh(100%, auto);
     padding-bottom: 0.6rem;
