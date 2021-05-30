@@ -16,7 +16,7 @@ interface RemoveAddressInterface{
 interface MsiteDataInterface {
     latitude: String, // 当前位置纬度
     longitude: String, // 当前位置经度
-    cartList: Object, // 加入购物车的商品列表
+    cartList: {}, // 加入购物车的商品列表
     shopDetail: String, //商家详情信息
     userInfo: UserInfoInterface, //用户信息
     shopid: String,//商铺id
@@ -163,6 +163,7 @@ const msite = createStore({
 	},
 	//清空当前商品的购物车信息
 	CLEAR_CART(state:  typeof MsiteData, shopid) {
+		debugger
 		state.cartList[shopid] = null;
 		state.cartList = {...state.cartList};
 		setStore('buyCart', state.cartList);

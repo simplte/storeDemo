@@ -113,7 +113,6 @@ export default defineComponent({
     const router = useRouter();
     const store = useStore();
     onBeforeMount(() => {
-		console.log(route.query)
       if (!route.query.geohash) {
         cityGuessData();
       } else {
@@ -129,6 +128,7 @@ export default defineComponent({
     async function cityGuessData() {
       const address: any = await elApi.cityGuess();
       geohash.value = address.latitude + "," + address.longitude;
+      console.log( geohash.value)
     }
 	async function getMsiteFoodTypes() {
 		 //获取导航食品类型列表

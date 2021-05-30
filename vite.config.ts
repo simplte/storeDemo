@@ -25,7 +25,7 @@ export default defineConfig({
       },
       '/elApi': {
         ws: true,
-        target: 'http://192.168.1.6:8000',
+        target: 'http://192.168.1.6:8001',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/elApi/,'/')
       },

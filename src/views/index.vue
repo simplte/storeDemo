@@ -83,6 +83,8 @@ export default defineComponent({
     async function reqestGroupcity() {
       let res: any = await ApiElHome.groupcity();
       groupcity.value = res;
+      console.log(groupcity.value)
+
     }
 
     async function requestHotcity() {
