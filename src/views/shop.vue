@@ -1,7 +1,7 @@
 <template>
   <div>
-    <section v-if="!showLoading" class="shop_container">
-      <nav class="goback" @click="goback">
+    <section class="shop_container">
+      <nav class="goback">
         <svg
           width="4rem"
           height="100%"
@@ -20,16 +20,12 @@
         :style="{ zIndex: showActivities ? '14' : '10' }"
       >
         <div class="header_cover_img_con">
-          {{shopDetailData.image_path}}
-          <img
-            :src="imgBaseUrl + shopDetailData.image_path"
-            class="header_cover_img"
-          />
+          <img class="header_cover_img" />
         </div>
         <section class="description_header">
           <div to="/shop/shopDetail" class="description_top">
             <section class="description_left">
-              <img :src="imgBaseUrl + shopDetailData.image_path" />
+              <img />
             </section>
             <section class="description_right">
               <h4 class="description_title ellipsis">
@@ -88,7 +84,7 @@
           </footer>
         </section>
       </header>
-      <transition name="fade">
+      <div name="fade">
         <section class="activities_details" v-if="showActivities">
           <h2 class="activities_shoptitle">{{ shopDetailData.name }}</h2>
           <h3 class="activities_ratingstar">
@@ -118,12 +114,7 @@
             </header>
             <p>{{ promotionInfo }}</p>
           </section>
-          <svg
-            width="60"
-            height="60"
-            class="close_activities"
-            @click.stop="showActivitiesFun"
-          >
+          <svg width="60" height="60" class="close_activities">
             <circle
               cx="30"
               cy="30"
@@ -148,7 +139,7 @@
             />
           </svg>
         </section>
-      </transition>
+      </div>
       <section class="change_show_type" ref="chooseType">
         <div>
           <span
@@ -165,7 +156,7 @@
           >
         </div>
       </section>
-      <transition name="fade-choose">
+      <div name="fade-choose">
         <section v-show="changeShowType == 'food'" class="food_container">
           <section class="menu_container">
             <section class="menu_left" id="wrapper_menu" ref="wrapperMenu">
@@ -177,7 +168,7 @@
                   :class="{ activity_menu: index == menuIndex }"
                   @click="chooseMenu(index)"
                 >
-                  <img :src="getImgPath(item.icon_url)" v-if="item.icon_url" />
+                  <img v-if="item.icon_url" />
                   <span>{{ item.name }}</span>
                   <span
                     class="category_num"
@@ -197,10 +188,7 @@
                         item.description
                       }}</span>
                     </section>
-                    <span
-                      class="menu_detail_header_right"
-                      @click="showTitleDetail(index)"
-                    ></span>
+                    <span class="menu_detail_header_right"></span>
                     <p class="description_tip" v-if="index == TitleDetailIndex">
                       <span>{{ item.name }}</span>
                       {{ item.description }}
@@ -230,7 +218,7 @@
                       class="menu_detail_link"
                     >
                       <section class="menu_food_img">
-                        <img :src="imgBaseUrl + foods.image_path" />
+                        <img />
                       </section>
                       <section class="menu_food_description">
                         <h3 class="food_description_head">
@@ -349,14 +337,14 @@
               </div>
             </section>
           </section>
-          <transition name="toggle-cart">
+          <div name="toggle-cart">
             <section
               class="cart_food_list"
               v-show="showCartList && cartFoodList.length"
             >
               <header>
                 <h4>购物车</h4>
-                <div @click="clearCart">
+                <div>
                   <svg>
                     <use
                       xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -382,18 +370,7 @@
                       <span>{{ item.price }}</span>
                     </div>
                     <section class="cart_list_control">
-                      <span
-                        @click="
-                          removeOutCart(
-                            item.category_id,
-                            item.item_id,
-                            item.food_id,
-                            item.name,
-                            item.price,
-                            item.specs
-                          )
-                        "
-                      >
+                      <span>
                         <svg>
                           <use
                             xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -402,19 +379,7 @@
                         </svg>
                       </span>
                       <span class="cart_num">{{ item.num }}</span>
-                      <svg
-                        class="cart_add"
-                        @click="
-                          addToCart(
-                            item.category_id,
-                            item.item_id,
-                            item.food_id,
-                            item.name,
-                            item.price,
-                            item.specs
-                          )
-                        "
-                      >
+                      <svg class="cart_add">
                         <use
                           xmlns:xlink="http://www.w3.org/1999/xlink"
                           xlink:href="#cart-add"
@@ -425,23 +390,22 @@
                 </ul>
               </section>
             </section>
-          </transition>
-          <transition name="fade">
+          </div>
+          <div name="fade">
             <div
               class="screen_cover"
               v-show="showCartList && cartFoodList.length"
-              @click="toggleCartList"
             ></div>
-          </transition>
+          </div>
         </section>
-      </transition>
-      <transition name="fade-choose">
+      </div>
+      <div name="fade-choose">
         <section
           class="rating_container"
           id="ratingContainer"
           v-show="changeShowType == 'rating'"
         >
-          <section v-load-more="loaderMoreRating" type="2">
+          <section type="2">
             <section>
               <header class="rating_header">
                 <section class="rating_header_left">
@@ -488,7 +452,6 @@
                     unsatisfied: item.unsatisfied,
                     tagActivity: ratingTageIndex == index,
                   }"
-                  @click="changeTgeIndex(index, item.name)"
                 >
                   {{ item.name }}({{ item.count }})
                 </li>
@@ -499,7 +462,7 @@
                   :key="index"
                   class="rating_list_li"
                 >
-                  <img :src="getImgPath(item.avatar)" class="user_avatar" />
+                  <img class="user_avatar" />
                   <section class="rating_list_details">
                     <header>
                       <section class="username_star">
@@ -518,10 +481,7 @@
                         v-for="(item, index) in item.item_ratings"
                         :key="index"
                       >
-                        <img
-                          :src="getImgPath(item.image_hash)"
-                          v-if="item.image_hash"
-                        />
+                        <img v-if="item.image_hash" />
                       </li>
                     </ul>
                     <ul class="food_name_ul">
@@ -539,112 +499,9 @@
             </section>
           </section>
         </section>
-      </transition>
-    </section>
-    <section>
-      <div name="fade">
-        <div class="specs_cover"  v-if="showSpecs"></div>
-      </div>
-      <div name="fadeBounce">
-        <div class="specs_list" v-if="showSpecs">
-          <header class="specs_list_header">
-            <h4 class="ellipsis">{{ choosedFoods.name }}</h4>
-            <svg
-              width="16"
-              height="16"
-              xmlns="http://www.w3.org/2000/svg"
-              version="1.1"
-              class="specs_cancel"
-           
-            >
-              <line
-                x1="0"
-                y1="0"
-                x2="16"
-                y2="16"
-                stroke="#666"
-                stroke-width="1.2"
-              />
-              <line
-                x1="0"
-                y1="16"
-                x2="16"
-                y2="0"
-                stroke="#666"
-                stroke-width="1.2"
-              />
-            </svg>
-          </header>
-          <section class="specs_details">
-            <h5 class="specs_details_title">
-              {{ choosedFoods.specifications[0].name }}
-            </h5>
-            <ul>
-              <li
-                v-for="(item, itemIndex) in choosedFoods.specifications[0]
-                  .values"
-                :class="{ specs_activity: itemIndex == specsIndex }"
-                :key="itemIndex"
-              >
-                {{ item }}
-              </li>
-            </ul>
-          </section>
-          <footer class="specs_footer">
-            <div class="specs_price">
-              <span>¥ </span>
-              <span>{{ choosedFoods.specfoods[specsIndex].price }}</span>
-            </div>
-            <div
-              class="specs_addto_cart"
-              @click="
-                addSpecs(
-                  choosedFoods.category_id,
-                  choosedFoods.item_id,
-                  choosedFoods.specfoods[specsIndex].food_id,
-                  choosedFoods.specfoods[specsIndex].name,
-                  choosedFoods.specfoods[specsIndex].price,
-                  choosedFoods.specifications[0].values[specsIndex],
-                  choosedFoods.specfoods[specsIndex].packing_fee,
-                  choosedFoods.specfoods[specsIndex].sku_id,
-                  choosedFoods.specfoods[specsIndex].stock
-                )
-              "
-            >
-              加入购物车
-            </div>
-          </footer>
-        </div>
       </div>
     </section>
-    <div name="fade">
-      <p class="show_delete_tip" v-if="showDeleteTip">
-        多规格商品只能去购物车删除哦
-      </p>
-    </div>
-    <div
-      appear
-      @after-appear="afterEnter"
-      @before-appear="beforeEnter"
-      v-for="(item, index) in showMoveDot"
-      :key="index"
-    >
-      <span class="move_dot" v-if="item">
-        <svg class="move_liner">
-          <use
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            xlink:href="#cart-add"
-          ></use>
-        </svg>
-      </span>
-    </div>
-    <!-- <loading v-show="showLoading || loadRatings"></loading> -->
-    <section
-      class="animation_opactiy shop_back_svg_container"
-      v-if="showLoading"
-    >
-      <img src="../../images/shop_back_svg.svg" />
-    </section>
+
     <div name="router-slid" mode="out-in">
       <router-view></router-view>
     </div>
@@ -655,6 +512,7 @@
 import headTop from "../components/header/head.vue";
 import footGuide from "../components/footer/footGuide.vue";
 import shopListd from "../components/common/shoplistd.vue";
+import buyCart from "../components/common/buyCart.vue";
 import { useStore } from "vuex";
 import {
   defineComponent,
@@ -664,6 +522,7 @@ import {
   computed,
   toRaw,
   nextTick,
+  reactive,
   watch,
   onBeforeMount,
 } from "vue";
@@ -685,13 +544,14 @@ export default defineComponent({
     headTop,
     footGuide,
     shopListd,
+    buyCart
   },
 
   setup() {
     const route = useRoute();
     const router = useRouter();
     const store = useStore();
-    let geohash = ref(null); //geohash位置信息
+    let geohash = ref<any>(""); //geohash位置信息
     let shopId = ref(null); //商店id值
     geohash.value = route.query.geohash;
     shopId.value = route.query.id;
@@ -699,25 +559,25 @@ export default defineComponent({
     let latitude = store.state.latitude;
     let longitude = store.state.longitude;
     // let cartList = store.state.cartList;
-
+    let testArr = ref([]);
     let showLoading = ref(true); //显示加载动画
-    let changeShowType = ref(null); //切换显示商品或者评价
+    let changeShowType = ref("food"); //切换显示商品或者评价
     let shopDetailData = ref(null); //商铺详情
-    let showActivities = ref(true); //是否显示活动详情
-    let menuList = ref(null); //食品列表
-    let menuIndex = ref(null); //已选菜单索引值，默认为0
+    let showActivities = ref(false); //是否显示活动详情
+    let menuList = ref([]); //食品列表
+    let menuIndex = ref(0); //已选菜单索引值，默认为0
     let menuIndexChange = ref(null); //解决选中index时，scroll监听事件重复判断设置index的bug
     let shopListTop = ref(null); //商品列表的高度集合
     let TitleDetailIndex = ref(null); //点击展示列表头部详情
-    let categoryNum = ref(null); //商品类型右上角已加入购物车的数量
+    let categoryNum = ref([]); //商品类型右上角已加入购物车的数量
     let totalPrice = ref(null); //总共价格
     let cartFoodList = ref(null); //购物车商品列表
     let showCartList = ref(null); //显示购物车列表
     let receiveInCart = ref(null); //购物车组件下落的圆点是否到达目标位置
-    let ratingList = ref(null); //评价列表
+    let ratingList = ref([]); //评价列表
     let ratingOffset = ref(null); //评价获取数据offset值
     let ratingScoresData = ref(null); //评价总体分数
-    let ratingTagsList = ref(null); //评价分类列表
+    let ratingTagsList = ref([]); //评价分类列表
     let ratingTageIndex = ref(null); //评价分类索引
     let preventRepeatRequest = ref(null); // 防止多次触发数据请求
     let ratingTagName = ref(null); //评论的类型
@@ -733,7 +593,7 @@ export default defineComponent({
     let elBottom = ref(null); //当前点击加按钮在网页中的绝对left值
     let ratingScroll = ref(null); //评论页Scroll
     const imgBaseUrl: string = "/img/";
-
+    let attribute = ref(false);
     let promotionInfo = computed(() => {
       return (
         shopDetailData.value.promotion_info ||
@@ -764,25 +624,20 @@ export default defineComponent({
     });
     //当前商店购物信息
     let shopCart = computed(() => {
-      debugger;
       return { ...store.state.cartList[shopId.value] };
     });
     let totalNum = computed(() => {
       let num = 0;
-      cartFoodList.value.forEach((item) => {
-        num += item.num;
-      });
+      // cartFoodList.value.forEach((item) => {
+      //   num += item.num;
+      // });
       return num;
     });
-      initData();
-    
-    onBeforeMount(() => {
-      debugger;
 
-      
+    onBeforeMount(() => {
+      initData();
     });
-    onMounted(() => {
-    });
+    onMounted(() => {});
     async function initData() {
       if (!latitude) {
         //获取位置信息
@@ -796,22 +651,27 @@ export default defineComponent({
         position: { latitude: latitude, longitude: longitude },
       });
       shopDetailData.value = resShopDeatail;
-      console.log(shopDetailData.value, resShopDeatail)
-      // shopDetailData.value
-      //获取商铺食品列表
-      menuList.value = await foodMenu({ restaurant_id: shopId.value });
+      // console.log(shopDetailData.value, resShopDeatail)
+      // // shopDetailData.value
+      // //获取商铺食品列表
+      let _menuRes: any = await foodMenu({ restaurant_id: shopId.value });
+      console.log(_menuRes);
+      menuList.value = _menuRes;
+      console.log(menuList);
       //评论列表
-      ratingList.value = await getRatingList({
+      let ratingRes: any = await getRatingList({
         shopid: shopId.value,
         offset: ratingOffset.value,
       });
-      //商铺评论详情
-      ratingScoresData.value = await ratingScores(shopId.value);
+      ratingList.value = ratingRes;
+      // //商铺评论详情
+      let scoreRes: any = await ratingScores(shopId.value);
+      ratingScoresData.value = scoreRes;
       //评论Tag列表
-      ratingTagsList.value = await ratingTags(shopId.value);
-      console.log(shopDetailData.value)
+      let tagRes: any = await ratingTags(shopId.value);
+      ratingTagsList.value = tagRes;
+      console.log(shopDetailData.value);
       store.commit("RECORD_SHOPDETAIL", shopDetailData.value);
-      hideLoading();
     }
     const menuFoodList = ref();
     const wrapperMenu = ref();
@@ -871,10 +731,10 @@ export default defineComponent({
       menuIndex.value = index;
       //menuIndexChange解决运动时listenScroll依然监听的bug
       menuIndexChange.value = false;
-      foodScroll.value.scrollTo(0, -shopListTop.value[index], 400);
-      foodScroll.value.on("scrollEnd", () => {
-        menuIndexChange.value = true;
-      });
+      // foodScroll.value.scrollTo(0, -shopListTop.value[index], 400);
+      // foodScroll.value.on("scrollEnd", () => {
+      //   menuIndexChange.value = true;
+      // });
     }
     function showTitleDetail(index) {
       if (TitleDetailIndex.value == index) {
@@ -1139,7 +999,7 @@ export default defineComponent({
       changeShowType,
       shopDetailData,
       showActivities,
-      menuList,
+
       menuIndex,
       menuIndexChange,
       shopListTop,
@@ -1173,27 +1033,14 @@ export default defineComponent({
       minimumOrderAmount,
       shopCart,
       totalNum,
-      getFoodListHeight,
-      menuFoodList,
-      showActivitiesFun,
+      attribute,
+      menuList,
       chooseMenu,
-      showTitleDetail,
-      addToCart,
-      removeOutCart,
-      initCategoryNum,
-      toggleCartList,
-      clearCart,
+      showActivitiesFun,
       listenInCart,
-      changeTgeIndex,
-      loaderMoreRating,
-      hideLoading,
       showChooseList,
       showReduceTip,
-      showMoveDotFun,
-      beforeEnter,
-      afterEnter,
-      goback,
-      
+      showMoveDotFun
     };
   },
 });
@@ -1654,7 +1501,7 @@ export default defineComponent({
   }
 }
 .buy_cart_container {
-  position: absolute;
+  position: fixed;
   background-color: #3d3d3f;
   bottom: 0;
   left: 0;
