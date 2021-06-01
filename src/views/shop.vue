@@ -501,7 +501,82 @@
         </section>
       </div>
     </section>
-
+    <section>
+      <div name="fade">
+        <div class="specs_cover" @click="showChooseList" v-if="showSpecs"></div>
+      </div>
+      <div name="fadeBounce">
+        <div class="specs_list" v-if="showSpecs">
+          <header class="specs_list_header">
+            <h4 class="ellipsis">{{ choosedFoods.name }}</h4>
+            <svg
+              width="16"
+              height="16"
+              xmlns="http://www.w3.org/2000/svg"
+              version="1.1"
+              class="specs_cancel"
+              @click="showChooseList"
+            >
+              <line
+                x1="0"
+                y1="0"
+                x2="16"
+                y2="16"
+                stroke="#666"
+                stroke-width="1.2"
+              />
+              <line
+                x1="0"
+                y1="16"
+                x2="16"
+                y2="0"
+                stroke="#666"
+                stroke-width="1.2"
+              />
+            </svg>
+          </header>
+          <section class="specs_details">
+            <h5 class="specs_details_title">
+              {{ choosedFoods.specifications[0].name }}
+            </h5>
+            <ul>
+              <li
+                v-for="(item, itemIndex) in choosedFoods.specifications[0].values"
+                :class="{ specs_activity: itemIndex == specsIndex }"
+                @click="chooseSpecs(itemIndex)"
+                :key="itemIndex"
+              >
+                {{ item }}
+              </li>
+            </ul>
+          </section>
+          <footer class="specs_footer">
+            <div class="specs_price">
+              <span>¥ </span>
+              <span>{{ choosedFoods.specfoods[specsIndex].price }}</span>
+            </div>
+            <div
+              class="specs_addto_cart"
+              @click="
+                addSpecs(
+                  choosedFoods.category_id,
+                  choosedFoods.item_id,
+                  choosedFoods.specfoods[specsIndex].food_id,
+                  choosedFoods.specfoods[specsIndex].name,
+                  choosedFoods.specfoods[specsIndex].price,
+                  choosedFoods.specifications[0].values[specsIndex],
+                  choosedFoods.specfoods[specsIndex].packing_fee,
+                  choosedFoods.specfoods[specsIndex].sku_id,
+                  choosedFoods.specfoods[specsIndex].stock
+                )
+              "
+            >
+              加入购物车
+            </div>
+          </footer>
+        </div>
+      </div>
+    </section>
     <div name="router-slid" mode="out-in">
       <router-view></router-view>
     </div>
@@ -544,7 +619,7 @@ export default defineComponent({
     headTop,
     footGuide,
     shopListd,
-    buyCart
+    buyCart,
   },
 
   setup() {
@@ -572,7 +647,7 @@ export default defineComponent({
     let categoryNum = ref([]); //商品类型右上角已加入购物车的数量
     let totalPrice = ref(null); //总共价格
     let cartFoodList = ref(null); //购物车商品列表
-    let showCartList = ref(null); //显示购物车列表
+    let showCartList = ref(false); //显示购物车列表
     let receiveInCart = ref(null); //购物车组件下落的圆点是否到达目标位置
     let ratingList = ref([]); //评价列表
     let ratingOffset = ref(null); //评价获取数据offset值
@@ -583,9 +658,9 @@ export default defineComponent({
     let ratingTagName = ref(null); //评论的类型
     let loadRatings = ref(null); //加载更多评论是显示加载组件
     let foodScroll = ref(null); //食品列表scroll
-    let showSpecs = ref(true); //控制显示食品规格
-    let specsIndex = ref(null); //当前选中的规格索引值
-    let choosedFoods = ref(null); //当前选中视频数据
+    let showSpecs = ref(false); //控制显示食品规格
+    let specsIndex = ref(0); //当前选中的规格索引值
+    let choosedFoods = ref({}); //当前选中视频数据
     let showDeleteTip = ref(null); //多规格商品点击减按钮，弹出提示框
     let showMoveDot = ref(null); //控制下落的小圆点显示隐藏
     let windowHeight = ref(null); //屏幕的高度
@@ -875,11 +950,10 @@ export default defineComponent({
     }
     //显示规格列表
     function showChooseList(foods?: any) {
-      if (foods) {
-        choosedFoods.value = foods;
-      }
       showSpecs.value = !showSpecs.value;
       specsIndex.value = 0;
+      if (!foods) return
+      choosedFoods.value = foods;
     }
     //记录当前所选规格的索引值
     function chooseSpecs(index) {
@@ -953,44 +1027,44 @@ export default defineComponent({
     function goback() {
       router.go(-1);
     }
-    watch(showLoading, (value) => {
-      if (!value) {
-        nextTick(() => {
-          getFoodListHeight();
-          initCategoryNum();
-        });
-      }
-    });
-    watch(shopCart, (value) => {
-      initCategoryNum();
-    });
+    // watch(showLoading, (value) => {
+    //   if (!value) {
+    //     nextTick(() => {
+    //       getFoodListHeight();
+    //       initCategoryNum();
+    //     });
+    //   }
+    // });
+    // watch(shopCart, (value) => {
+    //   initCategoryNum();
+    // });
     watch(cartFoodList, (value) => {
       if (!value.length) {
-        showCartList = false;
+        showCartList.value = false;
       }
     });
-    watch(changeShowType, (value: string | undefined) => {
-      if (value === "rating") {
-        nextTick(() => {
-          ratingScroll.value = new BScroll("#ratingContainer", {
-            probeType: 3,
-            deceleration: 0.003,
-            bounce: false,
-            swipeTime: 2000,
-            click: true,
-          });
-          ratingScroll.value.on("scroll", (pos) => {
-            if (
-              Math.abs(Math.round(pos.y)) >=
-              Math.abs(Math.round(ratingScroll.value.maxScrollY))
-            ) {
-              loaderMoreRating();
-              ratingScroll.value.refresh();
-            }
-          });
-        });
-      }
-    });
+    // watch(changeShowType, (value: string | undefined) => {
+    //   if (value === "rating") {
+    //     nextTick(() => {
+    //       ratingScroll.value = new BScroll("#ratingContainer", {
+    //         probeType: 3,
+    //         deceleration: 0.003,
+    //         bounce: false,
+    //         swipeTime: 2000,
+    //         click: true,
+    //       });
+    //       ratingScroll.value.on("scroll", (pos) => {
+    //         if (
+    //           Math.abs(Math.round(pos.y)) >=
+    //           Math.abs(Math.round(ratingScroll.value.maxScrollY))
+    //         ) {
+    //           loaderMoreRating();
+    //           ratingScroll.value.refresh();
+    //         }
+    //       });
+    //     });
+    //   }
+    // });
 
     return {
       geohash,
@@ -1040,7 +1114,9 @@ export default defineComponent({
       listenInCart,
       showChooseList,
       showReduceTip,
-      showMoveDotFun
+      showMoveDotFun,
+      addSpecs,
+      chooseSpecs
     };
   },
 });

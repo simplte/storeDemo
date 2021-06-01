@@ -163,7 +163,6 @@ const msite = createStore({
 	},
 	//清空当前商品的购物车信息
 	CLEAR_CART(state:  typeof MsiteData, shopid) {
-		debugger
 		state.cartList[shopid] = null;
 		state.cartList = {...state.cartList};
 		setStore('buyCart', state.cartList);
