@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div @click="valChange">watch</div>
+    <div>{{watchVal1}}</div>
+    <div>{{watchVal2}}</div>
     <section class="shop_container">
       <nav class="goback">
         <svg
@@ -627,6 +630,8 @@ export default defineComponent({
     const router = useRouter();
     const store = useStore();
     let geohash = ref<any>(""); //geohash位置信息
+    let watchVal1 = ref<String>('好吃')
+    let watchVal2 = ref<String>('我变了')
     let shopId = ref(null); //商店id值
     geohash.value = route.query.geohash;
     shopId.value = route.query.id;
@@ -1043,6 +1048,13 @@ export default defineComponent({
         showCartList.value = false;
       }
     });
+    
+    function valChange():void {
+        watchVal1.value += '，加1'
+    }
+    watch(watchVal1,(val) => {
+      watchVal2.value =`${watchVal2.value}${val}`
+    })
     // watch(changeShowType, (value: string | undefined) => {
     //   if (value === "rating") {
     //     nextTick(() => {
@@ -1116,7 +1128,10 @@ export default defineComponent({
       showReduceTip,
       showMoveDotFun,
       addSpecs,
-      chooseSpecs
+      chooseSpecs,
+      valChange,
+      watchVal1,
+      watchVal2
     };
   },
 });
