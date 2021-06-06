@@ -10,6 +10,7 @@ const routes: Array<RouteRecordRaw> = [
     { path: '/city', name: 'city', component: () => import('@/views/city.vue')} ,
     { path: '/msite', name: 'msite', component: () => import('@/views/msite.vue')}, 
     { path: '/shop', name: 'shop', component: () => import('@/views/shop.vue')}, 
+    { path: '/testApi', name: 'testApi', component: () => import('@/views/testApi.vue')}, 
 ]
 const router = createRouter({
     history: createWebHashHistory(),
